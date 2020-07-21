@@ -1,0 +1,74 @@
+﻿@page "/applications"
+
+<h1>Aplikacje</h1>
+
+        <DxDataGrid Data="CRUD.Data"
+                    @ref="@Grid"
+                    PageSize="10"
+                    PagerPageSizeSelectorVisible="true" 
+                    PagerAllowedPageSizes=@(new int[] {10,20,40, 60}) 
+                    ShowFilterRow="@CRUD.ShowFilterRow" 
+                    SelectionMode="DataGridSelectionMode.SingleSelectedDataRow"
+                    @bind-SingleSelectedDataRow="@CRUD.SelectedRow" 
+                    AutoCollapseDetailRow="true"
+                    ShowDetailRow="true"
+                    RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+                    RowInsertStart="@(() => OnRowEditStarting(null))"
+                    RowClick="@RowClicked"
+                    HtmlRowDecoration="@OnHtmlRowDecoration"
+                    style="width:100%; min-height: 200px"
+                    CssClass="table table-striped"
+                    >
+            <HeaderTemplate>
+                <DxToolbar ItemRenderStyleMode="ToolbarRenderStyleMode.Plain">
+                    <DxToolbarItem Text="Dodaj" BeginGroup="true" Click="@(() => Grid.StartRowEdit(null))" IconCssClass="typcn typcn-document-add toolbar-btn-img" CssClass="toolbar-item-button"/>
+                    <DxToolbarItem Text="Edytuj" Click="@(() => Grid.StartRowEdit(CRUD.SelectedRow))" IconCssClass="typcn typcn-edit toolbar-btn-img" CssClass="toolbar-item-button" Enabled="@CRUD.EditDeleteEnabled"/>
+                    <DxToolbarItem Text="Usuń" Click="@(() => OnRowRemoving(CRUD.SelectedRow))" IconCssClass="typcn typcn-trash toolbar-btn-img" CssClass="toolbar-item-button" Enabled="@CRUD.EditDeleteEnabled"/>
+                    <DxToolbarItem Text="Pokaż filtry" BeginGroup="true" GroupName="GroupName" Click="@CRUD.OnShowFilterRow" IconCssClass="typcn typcn-filter toolbar-btn-img" CssClass="toolbar-item-button"/>
+                </DxToolbar>
+            </HeaderTemplate>
+            <Columns>
+                <DxDataGridColumn Field="@nameof(ApplicationDBO.Id)" Caption="Id Aplikacji" Width="200px" />
+                <DxDataGridColumn Field="@nameof(ApplicationDBO.Name)" Caption="Nazwa aplikacji" Width="300px" />
+            </Columns>
+            <DetailRowTemplate>
+                <DxTabs>
+                    <DxTabPage Text="Wersje">
+                        <ApplicationVersion__ ApplicationId="@context.Id" />
+                    </DxTabPage>
+                </DxTabs>
+            </DetailRowTemplate>
+            <EditFormTemplate>
+                <EditForm Model="@CRUD.EditObject" Context="EditFormContext" OnValidSubmit="@CRUD.HandleValidSubmit" class="table-edit-form">
+                    <FluentValidationValidator/>
+                    <DxFormLayout>
+
+                        <DxFormLayoutItem Caption="Id:" ColSpanMd="5" Context="FormLayoutContext">
+                            <Template>
+                                <DxTextBox @bind-Text="@CRUD.EditObject.Id" ReadOnly="@(!CRUD.EditObject.IsNew)" />
+                            </Template>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Nazwa:" ColSpanMd="7" Context="FormLayoutContext">
+                            <Template>
+                                <DxTextBox @bind-Text="@CRUD.EditObject.Name" />
+                            </Template>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem ColSpanMd="8" Context="FormLayoutContext">
+                            <Template>
+                                <ValidationSummary />
+                            </Template>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="4" Context="FormLayoutContext">
+                            <Template>
+                                <div class="dxbs-fl-ctrl dxbs-fl-ctrl-nc text-right">
+                                    <AddUpdateButton IsNew="CRUD.EditObject.IsNew" Working="CRUD.Working" />
+                                    <button class="btn btn-dark" type="button" @onclick="@CRUD.CancelEdit">Anuluj</button>
+                                </div>
+                            </Template>
+                        </DxFormLayoutItem>
+                    </DxFormLayout>
+                </EditForm>
+            </EditFormTemplate>
+        </DxDataGrid>
